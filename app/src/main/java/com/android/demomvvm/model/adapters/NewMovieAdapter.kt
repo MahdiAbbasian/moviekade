@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.android.demomvvm.R
 import com.android.demomvvm.databinding.ItemNewMovieBinding
-import com.android.demomvvm.model.data.InformationHomeItemNewMovie
+import com.android.demomvvm.model.data.remote.response.InformationHomeItemNewMovieResponse
 import com.android.demomvvm.utils.ItemClickListener
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 
-class NewMovieAdapter(private val data: List<InformationHomeItemNewMovie>) :
+class NewMovieAdapter(private val data: List<InformationHomeItemNewMovieResponse>) :
     RecyclerView.Adapter<NewMovieAdapter.NewMovieViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NewMovieViewHolder {
@@ -22,8 +22,8 @@ class NewMovieAdapter(private val data: List<InformationHomeItemNewMovie>) :
     }
 
     override fun onBindViewHolder(holder: NewMovieViewHolder, position: Int) {
-        val informationHomeItemNewMovie: InformationHomeItemNewMovie = data[position]
-        holder.bind(informationHomeItemNewMovie)
+        val informationHomeItemNewMovieResponse: InformationHomeItemNewMovieResponse = data[position]
+        holder.bind(informationHomeItemNewMovieResponse)
     }
 
     override fun getItemCount(): Int {
@@ -35,9 +35,9 @@ class NewMovieAdapter(private val data: List<InformationHomeItemNewMovie>) :
         private var listener: ItemClickListener? = null
         lateinit var glide: RequestManager
 
-        fun bind(informationHomeItemNewMovie: InformationHomeItemNewMovie) {
-            itemBinding.nameMovie.text = informationHomeItemNewMovie.name
-            glide.load(informationHomeItemNewMovie.linkImg)
+        fun bind(informationHomeItemNewMovieResponse: InformationHomeItemNewMovieResponse) {
+            itemBinding.nameMovie.text = informationHomeItemNewMovieResponse.name
+            glide.load(informationHomeItemNewMovieResponse.linkImg)
                 .thumbnail(Glide.with(itemBinding.imgMovie).load(R.drawable.ic_popcorn).centerCrop())
                 .transition(DrawableTransitionOptions().crossFade())
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)

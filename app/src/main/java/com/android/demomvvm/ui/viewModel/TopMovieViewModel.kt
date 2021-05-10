@@ -3,25 +3,24 @@ package com.android.demomvvm.ui.viewModel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.android.demomvvm.model.data.InformationHomeItemAnimation
-import com.android.demomvvm.model.data.InformationHomeItemTopMovie
+import androidx.lifecycle.viewModelScope
+import com.android.demomvvm.model.data.remote.response.InformationHomeItemTopMovieResponse
 import com.android.demomvvm.utils.BaseApplication
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class TopMovieViewModel: ViewModel() {
-    val topMovieLiveData: MutableLiveData<List<InformationHomeItemTopMovie>> = MutableLiveData()
-    var items: List<InformationHomeItemTopMovie> = ArrayList()
+    val topMovieResponseLiveData: MutableLiveData<List<InformationHomeItemTopMovieResponse>> = MutableLiveData()
+    var itemResponses: List<InformationHomeItemTopMovieResponse> = ArrayList()
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = BaseApplication.api.getTopMovie("top_movie")
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        items = it.informationHome!!
-                        topMovieLiveData.value = it.informationHome
+                        itemResponses = it.informationHomeResponse!!
+                        topMovieResponseLiveData.value = it.informationHomeResponse
                     }?.run {
                         Log.v("DEBUG : ", response.body().toString())
                     }

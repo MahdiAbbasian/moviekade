@@ -3,24 +3,24 @@ package com.android.demomvvm.ui.viewModel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.android.demomvvm.model.data.InformationHomeItemAnimation
+import androidx.lifecycle.viewModelScope
+import com.android.demomvvm.model.data.remote.response.InformationHomeItemAnimationResponse
 import com.android.demomvvm.utils.BaseApplication
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class AnimationViewModel: ViewModel() {
-    val animationLiveData: MutableLiveData<List<InformationHomeItemAnimation>> = MutableLiveData()
-    var items: List<InformationHomeItemAnimation> = ArrayList()
+    val animationResponseLiveData: MutableLiveData<List<InformationHomeItemAnimationResponse>> = MutableLiveData()
+    var itemResponses: List<InformationHomeItemAnimationResponse> = ArrayList()
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = BaseApplication.api.getAnimationMovie("animation_movie")
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        items = it.informationHome!!
-                        animationLiveData.value = it.informationHome
+                        itemResponses = it.informationHomeResponse!!
+                        animationResponseLiveData.value = it.informationHomeResponse
                     }?.run {
                         Log.v("DEBUG : ", response.body().toString())
                     }

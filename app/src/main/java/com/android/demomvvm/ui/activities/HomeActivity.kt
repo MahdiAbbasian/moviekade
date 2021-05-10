@@ -2,7 +2,6 @@ package com.android.demomvvm.ui.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -18,16 +17,14 @@ import com.android.demomvvm.databinding.ContentHomeBinding
 import com.android.demomvvm.databinding.ItemSliderBinding
 import com.android.demomvvm.databinding.NavHeaderHomeBinding
 import com.android.demomvvm.model.adapters.*
-import com.android.demomvvm.model.data.SliderItem
+import com.android.demomvvm.model.data.remote.response.SliderItemResponse
+import com.android.demomvvm.model.database.MovieKadeDB
 import com.android.demomvvm.ui.viewModel.*
 import com.android.demomvvm.utils.BaseApplication.Companion.fBold
 import com.android.demomvvm.utils.BaseApplication.Companion.fRegular
 import com.android.demomvvm.utils.toast
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -41,13 +38,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     lateinit var topMovieViewModel: TopMovieViewModel
     lateinit var newMovieViewModel: NewMovieViewModel
     lateinit var seriesViewModel: SeriesViewModel
-    var itemSlider: ArrayList<SliderItem> = ArrayList()
+    var itemSliderResponse: ArrayList<SliderItemResponse> = ArrayList()
     var sliderAdapter: SliderAdapter? = null
     var animationAdapter: AnimationAdapter? = null
     var topMovieAdapter: TopMovieAdapter? = null
     var newMovieAdapter: NewMovieAdapter? = null
     var seriesAdapter: SeriesAdapter? = null
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,14 +64,6 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 binding.drawerLayout.openDrawer(GravityCompat.END)
             }
         })
-
-        //coroutines
-        GlobalScope.launch {
-            delay(3000L)
-            Log.d("HomeActivity", "Coroutines say hello from thread ${Thread.currentThread().name}")
-        }
-        Log.d("HomeActivity", "hello from thread ${Thread.currentThread().name}")
-
         //region call functions
         configHeaderDrawer()
         setUpSlider()
@@ -95,7 +83,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         )
         contentHomeBinding.recSeries.setHasFixedSize(true)
-        seriesViewModel.seriesLiveData.observe(this, Observer {
+        seriesViewModel.seriesLiveDataResponse.observe(this, Observer {
             seriesAdapter = SeriesAdapter(it)
         })
         contentHomeBinding.recSeries.adapter = seriesAdapter
@@ -110,7 +98,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         )
         contentHomeBinding.recNewMovie.setHasFixedSize(true)
-        newMovieViewModel.newMovieLiveData.observe(this, Observer {
+        newMovieViewModel.newMovieResponseLiveData.observe(this, Observer {
             newMovieAdapter = NewMovieAdapter(it)
         })
         contentHomeBinding.recNewMovie.adapter = newMovieAdapter
@@ -125,7 +113,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
      )
         contentHomeBinding.recTopMovie.setHasFixedSize(true)
-        topMovieViewModel.topMovieLiveData.observe(this, Observer {
+        topMovieViewModel.topMovieResponseLiveData.observe(this, Observer {
             topMovieAdapter = TopMovieAdapter(it)
         })
         contentHomeBinding.recTopMovie.adapter = topMovieAdapter
@@ -140,14 +128,14 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             )
         )
         contentHomeBinding.recAnimationMovie.setHasFixedSize(true)
-        animationViewModel.animationLiveData.observe(this, Observer {
+        animationViewModel.animationResponseLiveData.observe(this, Observer {
             animationAdapter = AnimationAdapter(it)
         })
         contentHomeBinding.recAnimationMovie.adapter = animationAdapter
     }
 
     private fun setUpSlider() {
-            sliderViewModel.sliderLiveData.observe(this, Observer { listSlider ->
+            sliderViewModel.sliderLiveDataResponse.observe(this, Observer { listSlider ->
                 sliderAdapter = SliderAdapter(Glide.with(this), listSlider as ArrayList)
             })
         contentHomeBinding.also {
@@ -163,7 +151,7 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     inner class TimerSlider : TimerTask() {
         override fun run() {
             runOnUiThread(Runnable {
-                if (contentHomeBinding.productSlider.getCurrentItem() < itemSlider.size - 1) {
+                if (contentHomeBinding.productSlider.getCurrentItem() < itemSliderResponse.size - 1) {
                     contentHomeBinding.productSlider.setCurrentItem(contentHomeBinding.productSlider.getCurrentItem() + 1)
                 } else {
                     contentHomeBinding.productSlider.setCurrentItem(0)

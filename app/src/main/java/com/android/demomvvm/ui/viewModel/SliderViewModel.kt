@@ -3,24 +3,24 @@ package com.android.demomvvm.ui.viewModel
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.android.demomvvm.model.data.SliderItem
+import androidx.lifecycle.viewModelScope
+import com.android.demomvvm.model.data.remote.response.SliderItemResponse
 import com.android.demomvvm.utils.BaseApplication
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class SliderViewModel: ViewModel() {
-    val sliderLiveData: MutableLiveData<List<SliderItem>> = MutableLiveData()
-    var items: ArrayList<SliderItem> = ArrayList()
+    val sliderLiveDataResponse: MutableLiveData<List<SliderItemResponse>> = MutableLiveData()
+    var itemResponses: ArrayList<SliderItemResponse> = ArrayList()
 
     init {
-        GlobalScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = BaseApplication.api.getSlider()
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        items = it.slider!!
-                        sliderLiveData.value = it.slider
+                        itemResponses = it.sliderResponse!!
+                        sliderLiveDataResponse.value = it.sliderResponse
                     }?.run {
                         Log.v("DEBUG : ", response.body().toString())
                     }
