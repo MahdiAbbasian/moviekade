@@ -24,5 +24,7 @@ class NewMovieResponseMapper @Inject constructor():
             it.genreName = genreName
         }
     }
-
+    fun mapFromList(entities: List<InformationHomeItemNewMovieResponse>): List<NewMovie> {
+        return entities.map { mapFrom(it) }
+    }
 }

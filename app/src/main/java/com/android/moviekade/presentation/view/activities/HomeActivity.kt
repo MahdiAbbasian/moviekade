@@ -46,8 +46,11 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     @Inject
     var animationAdapter: AnimationAdapter? = null
+    @Inject
     var topMovieAdapter: TopMovieAdapter? = null
+    @Inject
     var newMovieAdapter: NewMovieAdapter? = null
+    @Inject
     var seriesAdapter: SeriesAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,18 +98,32 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setUpNewMovie() {
-        contentHomeBinding.recNewMovie.setLayoutManager(
-            LinearLayoutManager(
-                this,
-                LinearLayoutManager.HORIZONTAL,
-                false
-            )
-        )
-        contentHomeBinding.recNewMovie.setHasFixedSize(true)
-        newMovieViewModel.newMovieResponseLiveData.observe(this, Observer {
-            newMovieAdapter = NewMovieAdapter(it)
+        newMovieViewModel.state.observe(this, {state->
+            when(state){
+                is MainState.Error -> {
+                    displayProgressBar(false)
+                    Toast.makeText(this,state.text,Toast.LENGTH_LONG).show()
+                }
+                is MainState.Loaded -> {
+                    displayProgressBar(false)
+                    contentHomeBinding.recNewMovie.setLayoutManager(
+                        LinearLayoutManager(
+                            this,
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+                    )
+                    contentHomeBinding.recNewMovie.setHasFixedSize(true)
+                    newMovieViewModel.getNewMovie().observe(this, Observer {
+                        newMovieAdapter = NewMovieAdapter(it)
+                    })
+                    contentHomeBinding.recNewMovie.adapter = newMovieAdapter
+                }
+                MainState.Loading -> {
+                    displayProgressBar(true)
+                }
+            }
         })
-        contentHomeBinding.recNewMovie.adapter = newMovieAdapter
     }
 
     private fun setUpTopMovie() {
@@ -132,14 +149,14 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     Toast.makeText(this,state.text,Toast.LENGTH_LONG).show()
                 }
                 is MainState.Loaded -> {
-                displayProgressBar(false)
-                contentHomeBinding.recAnimationMovie.setLayoutManager(
-                    LinearLayoutManager(
-                    this,
-                    LinearLayoutManager.HORIZONTAL,
-                    false
+                    displayProgressBar(false)
+                    contentHomeBinding.recAnimationMovie.setLayoutManager(
+                        LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
+                    )
                 )
-            )
                 contentHomeBinding.recAnimationMovie.setHasFixedSize(true)
                 animationViewModel.getAnimationMovie().observe(this, Observer {
                     animationAdapter = AnimationAdapter(it)

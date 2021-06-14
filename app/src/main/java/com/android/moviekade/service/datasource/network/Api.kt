@@ -10,13 +10,13 @@ interface Api {
     suspend fun getSlider(): List<SliderResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
-    suspend fun getAnimationMovie(@Query("category_name") category_name: String?): List<InformationHomeItemAnimationResponse>  //AnimationMovieResponse
+    suspend fun getAnimationMovie(@Query("category_name") category_name: String?): List<InformationHomeItemAnimationResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
     suspend fun getTopMovie(@Query("category_name") category_name: String?): List<TopMovieResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
-    suspend fun getNewMovie(@Query("category_name") category_name: String?): List<NewMovieResponse>
+    suspend fun getNewMovie(@Query("category_name") category_name: String?): List<InformationHomeItemNewMovieResponse>
 
     @GET(value = "MovieKade/getSeries.php?")
     suspend fun getSeries(@Query("category_name") category_name: String?): List<SeriesResponse>
