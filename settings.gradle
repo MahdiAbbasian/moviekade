@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "DemoMVVM"
+rootProject.name = "moviekade"
