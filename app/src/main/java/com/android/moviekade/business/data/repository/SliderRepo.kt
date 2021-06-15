@@ -1,41 +1,35 @@
 package com.android.moviekade.business.data.repository
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.android.moviekade.business.data.cache.LocalSlider
-import java.io.IOException
+import com.android.moviekade.business.domain.entity.Slider
+import com.android.moviekade.business.domain.mapper.cache.SliderCacheMapper
+import com.android.moviekade.business.domain.mapper.response.SliderResponseMapper
+import com.android.moviekade.presentation.database.DataState
+import com.android.moviekade.service.datasource.dao.SliderDAO
+import com.android.moviekade.service.datasource.network.Api
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import java.lang.Exception
+import javax.inject.Inject
 
-class SliderRepo(private var context: Context) {
-    private val db = MovieHouseDB.getMovieHouseDB(context.applicationContext)
-    private val sliderResponseLiveData: MutableLiveData<List<LocalSlider>> = MutableLiveData()
+class SliderRepo @Inject constructor(
+    private val sliderDAO: SliderDAO,
+    private val sliderNetwork: Api,
+    private val sliderCacheMapper: SliderCacheMapper,
+    private val sliderResponseMapper: SliderResponseMapper
+) {
 
-    suspend fun getAllItems(): LiveData<List<LocalSlider>> {
-        val value = db!!.sliderDao().getAllSlider()
-        sliderResponseLiveData.value = value
-        return sliderResponseLiveData
-    }
-
-    suspend fun deleteItem(deleteItemModel: List<LocalSlider>) {
-        return db!!.sliderDao().deleteSliderObject(deleteItemModel)
-    }
-
-    suspend fun clearAllItems() {
-        db!!.sliderDao().clearSlider()
-    }
-
-    suspend fun updateItem(updateItemModel: List<LocalSlider>) {
-        db!!.sliderDao().updateSlider(updateItemModel)
-    }
-
-    suspend fun insertAll(list: List<LocalSlider>) {
+    suspend fun getAllItems(): Flow<DataState<List<Slider>>> = flow {
+        emit(DataState.Loading)
         try {
-            for(ob in list) {
-                val uid = db!!.sliderDao().insertSliderObject(ob)
-                ob.id = uid
+            val networkSliderResponse = sliderNetwork.getSlider()
+            val sliders = sliderResponseMapper.mapFromList(networkSliderResponse)
+            for (slider in sliders) {
+                sliderDAO.insertSliderObject(sliderCacheMapper.mapTo(slider))
             }
-        } catch (ex: IOException) {
-            ex.printStackTrace()
+            val cachedSlider = sliderDAO.getAllSlider()
+            emit(DataState.Success(sliderCacheMapper.mapFromList(cachedSlider)))
+        }catch (e: Exception) {
+            emit(DataState.Error(e.message))
         }
     }
 }

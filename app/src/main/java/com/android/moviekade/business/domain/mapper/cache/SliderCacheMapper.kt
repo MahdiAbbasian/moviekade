@@ -5,7 +5,8 @@ import com.android.moviekade.business.data.cache.LocalSlider
 import com.android.moviekade.business.domain.mapper.MutualMapper
 import javax.inject.Inject
 
-class SliderCacheMapper @Inject constructor(): MutualMapper<LocalSlider, Slider> {
+class SliderCacheMapper @Inject constructor():
+    MutualMapper<LocalSlider, Slider> {
     override fun mapFrom(value: LocalSlider): Slider = with(value) {
         Slider().also {
             it.id = id
@@ -43,5 +44,8 @@ class SliderCacheMapper @Inject constructor(): MutualMapper<LocalSlider, Slider>
             it.time = time
             it.genreName = genreName
         }
+    }
+    fun mapFromList(entities: List<LocalSlider>): List<Slider> {
+        return entities.map { mapFrom(it) }
     }
 }

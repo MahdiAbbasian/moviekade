@@ -6,13 +6,13 @@ import retrofit2.http.Query
 
 interface Api {
     @GET(value = "MovieKade/getIndexSlider.php")
-    suspend fun getSlider(): List<SliderResponse>
+    suspend fun getSlider(): List<SliderItemResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
     suspend fun getAnimationMovie(@Query("category_name") category_name: String?): List<InformationHomeItemAnimationResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
-    suspend fun getTopMovie(@Query("category_name") category_name: String?): List<TopMovieResponse>
+    suspend fun getTopMovie(@Query("category_name") category_name: String?): List<InformationHomeItemTopMovieResponse>
 
     @GET(value = "MovieKade/getInformationHome.php?")
     suspend fun getNewMovie(@Query("category_name") category_name: String?): List<InformationHomeItemNewMovieResponse>

@@ -185,17 +185,31 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setUpSlider() {
-            sliderViewModel.sliderLiveDataResponse.observe(this, Observer { listSlider ->
-                sliderAdapter = SliderAdapter(Glide.with(this), listSlider as ArrayList)
-            })
-        contentHomeBinding.also {
-            it.productSlider.adapter = sliderAdapter
-            it.tabProductSlider.setupWithViewPager(contentHomeBinding.productSlider, true)
-        }
+        sliderViewModel.state.observe(this, {state->
+            when(state){
+                is MainState.Error -> {
+                    displayProgressBar(false)
+                    Toast.makeText(this,state.text,Toast.LENGTH_LONG).show()
+                }
+                is MainState.Loaded -> {
+                    displayProgressBar(false)
+                    sliderViewModel.getSlider().observe(this, Observer { listSlider ->
+                        sliderAdapter = SliderAdapter(Glide.with(this), listSlider as ArrayList)
+                    })
+                    contentHomeBinding.also {
+                        it.productSlider.adapter = sliderAdapter
+                        it.tabProductSlider.setupWithViewPager(contentHomeBinding.productSlider, true)
+                    }
 
-        val timerSlider = TimerSlider()
-        val timer = Timer()
-        timer.scheduleAtFixedRate(timerSlider, 3000, 6000)
+                    val timerSlider = TimerSlider()
+                    val timer = Timer()
+                    timer.scheduleAtFixedRate(timerSlider, 3000, 6000)
+                }
+                MainState.Loading -> {
+                    displayProgressBar(true)
+                }
+            }
+        })
     }
 
     inner class TimerSlider : TimerTask() {

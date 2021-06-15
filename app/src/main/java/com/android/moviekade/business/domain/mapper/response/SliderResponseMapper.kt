@@ -4,7 +4,8 @@ import com.android.moviekade.business.data.remote.response.SliderItemResponse
 import com.android.moviekade.business.domain.entity.Slider
 import com.android.moviekade.business.domain.mapper.Mapper
 
-class SliderResponseMapper: Mapper<SliderItemResponse, Slider> {
+class SliderResponseMapper:
+    Mapper<SliderItemResponse, Slider> {
     override fun mapFrom(value: SliderItemResponse): Slider = with(value) {
         Slider().also {
             it.id = id!!.toLong()
@@ -23,5 +24,8 @@ class SliderResponseMapper: Mapper<SliderItemResponse, Slider> {
             it.time = time
             it.genreName = genreName
         }
+    }
+    fun mapFromList(entities: List<SliderItemResponse>): List<Slider> {
+        return entities.map { mapFrom(it) }
     }
 }
