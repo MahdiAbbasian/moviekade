@@ -1,35 +1,45 @@
 package com.android.moviekade.presentation.viewModel
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.moviekade.business.data.remote.response.SeriesItemResponse
-import com.android.moviekade.framework.utils.BaseApplication
+import com.android.moviekade.business.domain.entity.Series
+import com.android.moviekade.business.usecase.SeriesUseCase
+import com.android.moviekade.presentation.MainState
+import com.android.moviekade.presentation.database.DataState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SeriesViewModel: ViewModel() {
-    val seriesLiveDataResponse: MutableLiveData<List<SeriesItemResponse>> = MutableLiveData()
-    var itemResponses: List<SeriesItemResponse> = ArrayList()
+@HiltViewModel
+class SeriesViewModel @Inject constructor(
+    private val seriesUseCase: SeriesUseCase
+): ViewModel() {
 
-    init {
+    private val _state = MutableLiveData<MainState<*>>()
+    val state: LiveData<MainState<*>> get() = _state
+
+    fun getSeries(): MutableLiveData<Series> {
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                val response = BaseApplication.api.getSeries("series")
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        itemResponses = it.seriesResponses!!
-                        seriesLiveDataResponse.value = it.seriesResponses
-                    }?.run {
-                        Log.v("DEBUG : ", response.body().toString())
+            seriesUseCase.invokeSeries().onEach { dataState ->
+                when(dataState) {
+                    is DataState.Error -> {
+                        _state.value = dataState.errorMessage?.let { MainState.Error(it) }
                     }
-                } else {
-                    Log.d("responseNotSucceed", response.message())
+                    DataState.Loading -> {
+                        _state.value = MainState.Loading
+                    }
+                    is DataState.Success -> {
+                        _state.value = MainState.Loaded(dataState.data)
+                    }
                 }
-            } catch (e: Throwable) {
-                Log.d("Error", e.toString())
             }
+                .launchIn(viewModelScope)
         }
+        return MutableLiveData<Series>()
     }
 }

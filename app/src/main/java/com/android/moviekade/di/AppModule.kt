@@ -4,8 +4,17 @@ import android.content.Context
 import androidx.room.Room
 import com.android.moviekade.R
 import com.android.moviekade.business.data.repository.AnimationMovieRepo
+import com.android.moviekade.business.data.repository.NewMovieRepo
+import com.android.moviekade.business.data.repository.SeriesRepo
 import com.android.moviekade.business.domain.mapper.cache.AnimationMovieCacheMapper
+import com.android.moviekade.business.domain.mapper.cache.NewMovieCacheMapper
+import com.android.moviekade.business.domain.mapper.cache.SeriesCacheMapper
 import com.android.moviekade.business.domain.mapper.response.AnimationMovieResponseMapper
+import com.android.moviekade.business.domain.mapper.response.NewMovieResponseMapper
+import com.android.moviekade.business.domain.mapper.response.SeriesResponseMapper
+import com.android.moviekade.business.usecase.AnimationMovieUseCase
+import com.android.moviekade.business.usecase.NewMovieUseCase
+import com.android.moviekade.business.usecase.SeriesUseCase
 import com.android.moviekade.service.datasource.dao.*
 import com.android.moviekade.presentation.database.MovieHouseDB
 import com.android.moviekade.service.datasource.network.Api
@@ -70,6 +79,52 @@ object AppModule {
          animationMovieResponseMapper: AnimationMovieResponseMapper
     ): AnimationMovieRepo {
         return AnimationMovieRepo(animationDao, animationMovieNetwork, animationMovieCacheMapper, animationMovieResponseMapper)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNewMovieRepo(
+        newMovieDAO: NewMovieDAO,
+        newMovieNetwork: Api,
+        newMovieCacheMapper: NewMovieCacheMapper,
+        newMovieResponseMapper: NewMovieResponseMapper
+    ): NewMovieRepo {
+        return NewMovieRepo(newMovieDAO, newMovieNetwork, newMovieCacheMapper, newMovieResponseMapper)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSeriesRepo(
+        seriesDAO: SeriesDAO,
+        seriesNetwork: Api,
+        seriesCacheMapper: SeriesCacheMapper,
+        seriesResponseMapper: SeriesResponseMapper
+    ): SeriesRepo {
+        return SeriesRepo(seriesDAO, seriesNetwork, seriesCacheMapper, seriesResponseMapper)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAnimationMovieUseCase(
+        animationMovieRepo: AnimationMovieRepo
+    ): AnimationMovieUseCase {
+        return AnimationMovieUseCase(animationMovieRepo)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNewMovieUseCase(
+        newMovieRepo: NewMovieRepo
+    ): NewMovieUseCase {
+        return NewMovieUseCase(newMovieRepo)
+    }
+
+    @Singleton
+    @Provides
+    fun provideSeriesUseCase(
+        seriesRepo: SeriesRepo
+    ): SeriesUseCase {
+        return SeriesUseCase(seriesRepo)
     }
     
     @Singleton

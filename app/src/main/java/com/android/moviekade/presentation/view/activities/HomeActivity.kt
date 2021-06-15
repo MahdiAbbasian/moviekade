@@ -83,18 +83,32 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setUpSeries() {
-        contentHomeBinding.recSeries.setLayoutManager(
-            LinearLayoutManager(
-                this,
-                LinearLayoutManager.HORIZONTAL,
-                false
-            )
-        )
-        contentHomeBinding.recSeries.setHasFixedSize(true)
-        seriesViewModel.seriesLiveDataResponse.observe(this, Observer {
-            seriesAdapter = SeriesAdapter(it)
+        seriesViewModel.state.observe(this, {state->
+            when(state){
+                is MainState.Error -> {
+                    displayProgressBar(false)
+                    Toast.makeText(this,state.text,Toast.LENGTH_LONG).show()
+                }
+                is MainState.Loaded -> {
+                    displayProgressBar(false)
+                    contentHomeBinding.recSeries.setLayoutManager(
+                        LinearLayoutManager(
+                            this,
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+                    )
+                    contentHomeBinding.recSeries.setHasFixedSize(true)
+                    seriesViewModel.getSeries().observe(this, Observer {
+                        seriesAdapter = SeriesAdapter(it)
+                    })
+                    contentHomeBinding.recSeries.adapter = seriesAdapter
+                }
+                MainState.Loading -> {
+                    displayProgressBar(true)
+                }
+            }
         })
-        contentHomeBinding.recSeries.adapter = seriesAdapter
     }
 
     private fun setUpNewMovie() {

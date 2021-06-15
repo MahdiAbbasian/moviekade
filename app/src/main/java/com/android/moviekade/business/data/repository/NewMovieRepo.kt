@@ -8,6 +8,7 @@ import com.android.moviekade.service.datasource.dao.NewMovieDAO
 import com.android.moviekade.service.datasource.network.Api
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import java.lang.Exception
 import javax.inject.Inject
 
 class NewMovieRepo @Inject constructor(

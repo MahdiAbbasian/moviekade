@@ -5,7 +5,8 @@ import com.android.moviekade.business.data.cache.LocalSeries
 import com.android.moviekade.business.domain.mapper.MutualMapper
 import javax.inject.Inject
 
-class SeriesCacheMapper @Inject constructor(): MutualMapper<LocalSeries, Series> {
+class SeriesCacheMapper @Inject constructor():
+    MutualMapper<LocalSeries, Series> {
     override fun mapFrom(value: LocalSeries): Series = with(value) {
         Series().also {
             it.idSeries = idSeries
@@ -40,5 +41,7 @@ class SeriesCacheMapper @Inject constructor(): MutualMapper<LocalSeries, Series>
             it.genreName = genreName
         }
     }
-
+    fun mapFromList(entities: List<LocalSeries>): List<Series> {
+        return entities.map { mapFrom(it) }
+    }
 }

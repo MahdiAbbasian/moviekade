@@ -1,41 +1,37 @@
 package com.android.moviekade.business.data.repository
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.android.moviekade.business.data.cache.LocalSeries
-import java.io.IOException
+import com.android.moviekade.business.domain.entity.Series
+import com.android.moviekade.business.domain.mapper.cache.SeriesCacheMapper
+import com.android.moviekade.business.domain.mapper.response.SeriesResponseMapper
+import com.android.moviekade.presentation.database.DataState
+import com.android.moviekade.service.datasource.dao.SeriesDAO
+import com.android.moviekade.service.datasource.network.Api
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import java.lang.Exception
+import javax.inject.Inject
 
-class SeriesRepo(private var context: Context) {
-    private val db = MovieHouseDB.getMovieHouseDB(context.applicationContext)
-    private val seriesResponseLiveData: MutableLiveData<List<LocalSeries>> = MutableLiveData()
+class SeriesRepo @Inject constructor(
+    private val seriesDAO: SeriesDAO,
+    private val seriesNetwork: Api,
+    private val seriesCacheMapper: SeriesCacheMapper,
+    private val seriesResponseMapper: SeriesResponseMapper
+) {
 
-    suspend fun getAllItems(): LiveData<List<LocalSeries>> {
-        val value = db!!.seriesDao().getAllSeries()
-        seriesResponseLiveData.value = value
-        return seriesResponseLiveData
-    }
-
-    suspend fun deleteItem(deleteItemModel: List<LocalSeries>) {
-        return db!!.seriesDao().deleteSeriesObject(deleteItemModel)
-    }
-
-    suspend fun clearAllItems() {
-        db!!.seriesDao().clearSeries()
-    }
-
-    suspend fun updateItem(updateItemModel: List<LocalSeries>) {
-        db!!.seriesDao().updateSeries(updateItemModel)
-    }
-
-    suspend fun insertAll(list: List<LocalSeries>) {
+    suspend fun getAllItems(): Flow<DataState<List<Series>>> = flow {
+        emit(DataState.Loading)
         try {
-            for(ob in list) {
-                val uid = db!!.seriesDao().insertSeriesObject(ob)
-                ob.idSeries = uid
+            val networkSeriesResponse = seriesNetwork.getSeries("series")
+            val allSeries = seriesResponseMapper.mapFromList(networkSeriesResponse)
+            for (series in allSeries) {
+                seriesDAO.insertSeriesObject(seriesCacheMapper.mapTo(series))
             }
-        } catch (ex: IOException) {
-            ex.printStackTrace()
+            val cachedSeries = seriesDAO.getAllSeries()
+            emit(DataState.Success(seriesCacheMapper.mapFromList(cachedSeries)))
+
+        }catch (e: Exception) {
+            emit(DataState.Error(e.message))
         }
     }
+
 }

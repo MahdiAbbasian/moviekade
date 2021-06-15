@@ -1,7 +1,6 @@
 package com.android.moviekade.service.datasource.network
 
 import com.android.moviekade.business.data.remote.response.*
-import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -19,5 +18,5 @@ interface Api {
     suspend fun getNewMovie(@Query("category_name") category_name: String?): List<InformationHomeItemNewMovieResponse>
 
     @GET(value = "MovieKade/getSeries.php?")
-    suspend fun getSeries(@Query("category_name") category_name: String?): List<SeriesResponse>
+    suspend fun getSeries(@Query("category_name") category_name: String?): List<SeriesItemResponse>
 }

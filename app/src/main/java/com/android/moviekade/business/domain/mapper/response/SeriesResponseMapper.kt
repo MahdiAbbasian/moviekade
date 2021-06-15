@@ -4,7 +4,8 @@ import com.android.moviekade.business.data.remote.response.SeriesItemResponse
 import com.android.moviekade.business.domain.entity.Series
 import com.android.moviekade.business.domain.mapper.Mapper
 
-class SeriesResponseMapper: Mapper<SeriesItemResponse, Series> {
+class SeriesResponseMapper:
+    Mapper<SeriesItemResponse, Series> {
     override fun mapFrom(value: SeriesItemResponse): Series = with(value) {
         Series().also {
             it.idSeries = idSeries!!.toLong()
@@ -21,5 +22,8 @@ class SeriesResponseMapper: Mapper<SeriesItemResponse, Series> {
             it.time = time
             it.genreName = genreName
         }
+    }
+    fun mapFromList(entities: List<SeriesItemResponse>): List<Series> {
+        return entities.map { mapFrom(it) }
     }
 }
