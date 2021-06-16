@@ -3,22 +3,10 @@ package com.android.moviekade.di
 import android.content.Context
 import androidx.room.Room
 import com.android.moviekade.R
-import com.android.moviekade.business.data.repository.AnimationMovieRepo
-import com.android.moviekade.business.data.repository.NewMovieRepo
-import com.android.moviekade.business.data.repository.SeriesRepo
-import com.android.moviekade.business.data.repository.SliderRepo
-import com.android.moviekade.business.domain.mapper.cache.AnimationMovieCacheMapper
-import com.android.moviekade.business.domain.mapper.cache.NewMovieCacheMapper
-import com.android.moviekade.business.domain.mapper.cache.SeriesCacheMapper
-import com.android.moviekade.business.domain.mapper.cache.SliderCacheMapper
-import com.android.moviekade.business.domain.mapper.response.AnimationMovieResponseMapper
-import com.android.moviekade.business.domain.mapper.response.NewMovieResponseMapper
-import com.android.moviekade.business.domain.mapper.response.SeriesResponseMapper
-import com.android.moviekade.business.domain.mapper.response.SliderResponseMapper
-import com.android.moviekade.business.usecase.AnimationMovieUseCase
-import com.android.moviekade.business.usecase.NewMovieUseCase
-import com.android.moviekade.business.usecase.SeriesUseCase
-import com.android.moviekade.business.usecase.SliderUseCase
+import com.android.moviekade.business.data.repository.*
+import com.android.moviekade.business.domain.mapper.cache.*
+import com.android.moviekade.business.domain.mapper.response.*
+import com.android.moviekade.business.usecase.*
 import com.android.moviekade.service.datasource.dao.*
 import com.android.moviekade.presentation.database.MovieHouseDB
 import com.android.moviekade.service.datasource.network.Api
@@ -120,6 +108,17 @@ object AppModule {
 
     @Singleton
     @Provides
+    fun provideTopMovieRepo(
+        topMovieDAO: TopMovieDAO,
+        topMovieNetwork: Api,
+        topMovieCacheMapper: TopMovieCacheMapper,
+        topMovieResponseMapper: TopMovieResponseMapper
+    ): TopMovieRepo {
+        return TopMovieRepo(topMovieDAO, topMovieNetwork, topMovieCacheMapper, topMovieResponseMapper)
+    }
+
+    @Singleton
+    @Provides
     fun provideAnimationMovieUseCase(
         animationMovieRepo: AnimationMovieRepo
     ): AnimationMovieUseCase {
@@ -148,6 +147,14 @@ object AppModule {
         sliderRepo: SliderRepo
     ): SliderUseCase {
         return SliderUseCase(sliderRepo)
+    }
+
+    @Singleton
+    @Provides
+    fun provideTopMovieUseCase(
+        topMovieRepo: TopMovieRepo
+    ): TopMovieUseCase {
+        return TopMovieUseCase(topMovieRepo)
     }
     
     @Singleton

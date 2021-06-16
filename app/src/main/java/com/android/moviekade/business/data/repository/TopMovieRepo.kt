@@ -1,41 +1,35 @@
 package com.android.moviekade.business.data.repository
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.android.moviekade.business.data.cache.LocalTopMovie
-import java.io.IOException
+import com.android.moviekade.business.domain.entity.TopMovie
+import com.android.moviekade.business.domain.mapper.cache.TopMovieCacheMapper
+import com.android.moviekade.business.domain.mapper.response.TopMovieResponseMapper
+import com.android.moviekade.presentation.database.DataState
+import com.android.moviekade.service.datasource.dao.TopMovieDAO
+import com.android.moviekade.service.datasource.network.Api
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import java.lang.Exception
+import javax.inject.Inject
 
-class TopMovieRepo(private var context: Context) {
-    private val db = MovieHouseDB.getMovieHouseDB(context.applicationContext)
-    private val topMovieResponseLiveData: MutableLiveData<List<LocalTopMovie>> = MutableLiveData()
+class TopMovieRepo @Inject constructor(
+    private val topMovieDAO: TopMovieDAO,
+    private val topMovieNetwork: Api,
+    private val topMovieCacheMapper: TopMovieCacheMapper,
+    private val topMovieResponseMapper: TopMovieResponseMapper
+) {
 
-    suspend fun getAllItems(): LiveData<List<LocalTopMovie>> {
-        val value = db!!.topMovieDao().getAllTopMovie()
-        topMovieResponseLiveData.value = value
-        return topMovieResponseLiveData
-    }
-
-    suspend fun deleteItem(deleteItemModel: List<LocalTopMovie>) {
-        return db!!.topMovieDao().deleteSliderObject(deleteItemModel)
-    }
-
-    suspend fun clearAllItems() {
-        db!!.topMovieDao().clearTopMovie()
-    }
-
-    suspend fun updateItem(updateItemModel: List<LocalTopMovie>) {
-        db!!.topMovieDao().updateTopMovie(updateItemModel)
-    }
-
-    suspend fun insertAll(list: List<LocalTopMovie>) {
+    suspend fun getAllItems(): Flow<DataState<List<TopMovie>>> = flow {
+        emit(DataState.Loading)
         try {
-            for(ob in list) {
-                val uid = db!!.topMovieDao().insertTopMovieObject(ob)
-                ob.id = uid
+            val networkTopMovieResponse = topMovieNetwork.getTopMovie("top_movie")
+            val topMovies = topMovieResponseMapper.mapFromList(networkTopMovieResponse)
+            for (topMovie in topMovies) {
+                topMovieDAO.insertTopMovieObject(topMovieCacheMapper.mapTo(topMovie))
             }
-        } catch (ex: IOException) {
-            ex.printStackTrace()
+            val cachedTopMovie = topMovieDAO.getAllTopMovie()
+            emit(DataState.Success(topMovieCacheMapper.mapFromList(cachedTopMovie)))
+        }catch (e: Exception) {
+            emit(DataState.Error(e.message))
         }
     }
 }

@@ -4,7 +4,8 @@ import com.android.moviekade.business.data.remote.response.InformationHomeItemTo
 import com.android.moviekade.business.domain.entity.TopMovie
 import com.android.moviekade.business.domain.mapper.Mapper
 
-class TopMovieResponseMapper: Mapper<InformationHomeItemTopMovieResponse, TopMovie> {
+class TopMovieResponseMapper:
+    Mapper<InformationHomeItemTopMovieResponse, TopMovie> {
     override fun mapFrom(value: InformationHomeItemTopMovieResponse): TopMovie = with(value) {
         TopMovie().also {
             it.id = id!!.toLong()
@@ -21,5 +22,8 @@ class TopMovieResponseMapper: Mapper<InformationHomeItemTopMovieResponse, TopMov
             it.time = time
             it.genreName = genreName
         }
+    }
+    fun mapFromList(entities: List<InformationHomeItemTopMovieResponse>): List<TopMovie> {
+        return entities.map { mapFrom(it) }
     }
 }

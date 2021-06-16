@@ -141,18 +141,32 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun setUpTopMovie() {
-        contentHomeBinding.recTopMovie.setLayoutManager(
-            LinearLayoutManager(
-                this,
-                LinearLayoutManager.HORIZONTAL,
-                false
-        )
-     )
-        contentHomeBinding.recTopMovie.setHasFixedSize(true)
-        topMovieViewModel.topMovieResponseLiveData.observe(this, Observer {
-            topMovieAdapter = TopMovieAdapter(it)
+        topMovieViewModel.state.observe(this, {state->
+            when(state){
+                is MainState.Error -> {
+                    displayProgressBar(false)
+                    Toast.makeText(this,state.text,Toast.LENGTH_LONG).show()
+                }
+                is MainState.Loaded -> {
+                    displayProgressBar(false)
+                    contentHomeBinding.recTopMovie.setLayoutManager(
+                        LinearLayoutManager(
+                            this,
+                            LinearLayoutManager.HORIZONTAL,
+                            false
+                        )
+                    )
+                    contentHomeBinding.recTopMovie.setHasFixedSize(true)
+                    topMovieViewModel.getTopMovie().observe(this, Observer {
+                        topMovieAdapter = TopMovieAdapter(it)
+                    })
+                    contentHomeBinding.recTopMovie.adapter = topMovieAdapter
+                }
+                MainState.Loading -> {
+                    displayProgressBar(true)
+                }
+            }
         })
-        contentHomeBinding.recTopMovie.adapter = topMovieAdapter
     }
 
     private fun setUpAnimationMovie() {
