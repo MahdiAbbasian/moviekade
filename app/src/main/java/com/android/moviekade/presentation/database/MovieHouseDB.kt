@@ -4,9 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.android.moviekade.business.data.cache.*
 import com.android.moviekade.service.datasource.dao.*
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 @Database(entities = [LocalAnimationMovie::class,
                      LocalNewMovie::class,
                      LocalSeries::class,

@@ -2,6 +2,7 @@ package com.android.moviekade.presentation.view.activities
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -16,55 +17,58 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.android.moviekade.R
 import com.android.moviekade.presentation.adapters.*
 import com.android.moviekade.business.data.remote.response.SliderItemResponse
+import com.android.moviekade.business.domain.entity.AnimationMovie
+import com.android.moviekade.business.domain.entity.NewMovie
+import com.android.moviekade.business.domain.entity.Series
+import com.android.moviekade.business.domain.entity.TopMovie
 import com.android.moviekade.databinding.*
 import com.android.moviekade.presentation.MainState
 import com.android.moviekade.presentation.viewModel.*
 import com.android.moviekade.framework.utils.BaseApplication.Companion.fBold
 import com.android.moviekade.framework.utils.BaseApplication.Companion.fRegular
 import com.android.moviekade.framework.utils.toast
-import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
+import kotlin.collections.MutableList as MutableList
 
 @AndroidEntryPoint
-class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityHomeBinding
-    private lateinit var contentHomeBinding: ContentHomeBinding
-    private lateinit var itemSliderBinding: ItemSliderBinding
     private lateinit var navHeaderHomeBinding: NavHeaderHomeBinding
     private lateinit var itemProgressBarBinding :ItemProgressbarBinding
-    lateinit var sliderViewModel: SliderViewModel
-    lateinit var animationViewModel: AnimationViewModel
-    lateinit var topMovieViewModel: TopMovieViewModel
-    lateinit var newMovieViewModel: NewMovieViewModel
-    lateinit var seriesViewModel: SeriesViewModel
+    private lateinit var sliderViewModel: SliderViewModel
+    private val animationViewModel: AnimationViewModel by viewModels()
+    private val topMovieViewModel: TopMovieViewModel by viewModels()
+    private val newMovieViewModel: NewMovieViewModel by viewModels()
+    private val seriesViewModel: SeriesViewModel by viewModels()
     var itemSliderResponse: ArrayList<SliderItemResponse> = ArrayList()
-    var sliderAdapter: SliderAdapter? = null
 
     @Inject
-    var animationAdapter: AnimationAdapter? = null
+    lateinit var sliderAdapter: SliderAdapter
     @Inject
-    var topMovieAdapter: TopMovieAdapter? = null
+    lateinit var animationAdapter: AnimationAdapter
     @Inject
-    var newMovieAdapter: NewMovieAdapter? = null
+    lateinit var topMovieAdapter: TopMovieAdapter
     @Inject
-    var seriesAdapter: SeriesAdapter? = null
+    lateinit var newMovieAdapter: NewMovieAdapter
+    @Inject
+    lateinit var seriesAdapter: SeriesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        contentHomeBinding = ContentHomeBinding.inflate(layoutInflater)
         sliderViewModel = ViewModelProvider(this).get(SliderViewModel::class.java)
 
         toast("Hello")
         /*config Toolbar*/
-        setSupportActionBar(contentHomeBinding.toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-        contentHomeBinding.btnMenu.setOnClickListener(View.OnClickListener {
+        binding.btnMenu.setOnClickListener(View.OnClickListener {
             val drawerLockMode = binding.drawerLayout.getDrawerLockMode(GravityCompat.END)
             if (binding.drawerLayout.isDrawerVisible(GravityCompat.END) && drawerLockMode != DrawerLayout.LOCK_MODE_LOCKED_OPEN) {
                 binding.drawerLayout.closeDrawer(GravityCompat.END)
@@ -91,18 +95,17 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 is MainState.Loaded -> {
                     displayProgressBar(false)
-                    contentHomeBinding.recSeries.setLayoutManager(
-                        LinearLayoutManager(
-                            this,
-                            LinearLayoutManager.HORIZONTAL,
-                            false
-                        )
+                    binding.recSeries.layoutManager = LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
                     )
-                    contentHomeBinding.recSeries.setHasFixedSize(true)
+                    binding.recSeries.setHasFixedSize(true)
                     seriesViewModel.getSeries().observe(this, Observer {
-                        seriesAdapter = SeriesAdapter(it)
+                        seriesAdapter.differ.submitList(state.data as MutableList<Series>)
+                        Log.e("INSIDE", state.data as String)
                     })
-                    contentHomeBinding.recSeries.adapter = seriesAdapter
+                    binding.recSeries.adapter = seriesAdapter
                 }
                 MainState.Loading -> {
                     displayProgressBar(true)
@@ -120,18 +123,16 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 is MainState.Loaded -> {
                     displayProgressBar(false)
-                    contentHomeBinding.recNewMovie.setLayoutManager(
-                        LinearLayoutManager(
-                            this,
-                            LinearLayoutManager.HORIZONTAL,
-                            false
-                        )
+                    binding.recNewMovie.layoutManager = LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
                     )
-                    contentHomeBinding.recNewMovie.setHasFixedSize(true)
+                    binding.recNewMovie.setHasFixedSize(true)
                     newMovieViewModel.getNewMovie().observe(this, Observer {
-                        newMovieAdapter = NewMovieAdapter(it)
+                        newMovieAdapter.differ.submitList(state.data as MutableList<NewMovie>)
                     })
-                    contentHomeBinding.recNewMovie.adapter = newMovieAdapter
+                    binding.recNewMovie.adapter = newMovieAdapter
                 }
                 MainState.Loading -> {
                     displayProgressBar(true)
@@ -149,18 +150,16 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 is MainState.Loaded -> {
                     displayProgressBar(false)
-                    contentHomeBinding.recTopMovie.setLayoutManager(
-                        LinearLayoutManager(
-                            this,
-                            LinearLayoutManager.HORIZONTAL,
-                            false
-                        )
+                    binding.recTopMovie.layoutManager = LinearLayoutManager(
+                        this,
+                        LinearLayoutManager.HORIZONTAL,
+                        false
                     )
-                    contentHomeBinding.recTopMovie.setHasFixedSize(true)
+                    binding.recTopMovie.setHasFixedSize(true)
                     topMovieViewModel.getTopMovie().observe(this, Observer {
-                        topMovieAdapter = TopMovieAdapter(it)
+                        topMovieAdapter.differ.submitList(state.data as MutableList<TopMovie>)
                     })
-                    contentHomeBinding.recTopMovie.adapter = topMovieAdapter
+                    binding.recTopMovie.adapter = topMovieAdapter
                 }
                 MainState.Loading -> {
                     displayProgressBar(true)
@@ -178,18 +177,16 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 is MainState.Loaded -> {
                     displayProgressBar(false)
-                    contentHomeBinding.recAnimationMovie.setLayoutManager(
-                        LinearLayoutManager(
+                    binding.recAnimationMovie.layoutManager = LinearLayoutManager(
                         this,
                         LinearLayoutManager.HORIZONTAL,
                         false
                     )
-                )
-                contentHomeBinding.recAnimationMovie.setHasFixedSize(true)
+                binding.recAnimationMovie.setHasFixedSize(true)
                 animationViewModel.getAnimationMovie().observe(this, Observer {
-                    animationAdapter = AnimationAdapter(it)
+                    animationAdapter.differ.submitList(state.data as MutableList<AnimationMovie>)
                 })
-                    contentHomeBinding.recAnimationMovie.adapter = animationAdapter
+                    binding.recAnimationMovie.adapter = animationAdapter
                 }
                 MainState.Loading -> {
                     displayProgressBar(true)
@@ -207,12 +204,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
                 is MainState.Loaded -> {
                     displayProgressBar(false)
-                    sliderViewModel.getSlider().observe(this, Observer { listSlider ->
-                        sliderAdapter = SliderAdapter(Glide.with(this), listSlider as ArrayList)
+                    sliderViewModel.getSlider().observe(this, Observer {
+                        sliderAdapter = SliderAdapter(state.data as RequestManager)
                     })
-                    contentHomeBinding.also {
+                    binding.also {
                         it.productSlider.adapter = sliderAdapter
-                        it.tabProductSlider.setupWithViewPager(contentHomeBinding.productSlider, true)
+                        it.tabProductSlider.setupWithViewPager(binding.productSlider, true)
                     }
 
                     val timerSlider = TimerSlider()
@@ -229,10 +226,10 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     inner class TimerSlider : TimerTask() {
         override fun run() {
             runOnUiThread(Runnable {
-                if (contentHomeBinding.productSlider.getCurrentItem() < itemSliderResponse.size - 1) {
-                    contentHomeBinding.productSlider.setCurrentItem(contentHomeBinding.productSlider.getCurrentItem() + 1)
+                if (binding.productSlider.currentItem < itemSliderResponse.size - 1) {
+                    binding.productSlider.currentItem = binding.productSlider.currentItem + 1
                 } else {
-                    contentHomeBinding.productSlider.setCurrentItem(0)
+                    binding.productSlider.currentItem = 0
                 }
             })
         }
@@ -241,10 +238,12 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     @SuppressLint("SetTextI18n")
     private fun configHeaderDrawer() {
         val view = binding.navView.getHeaderView(0)
+        navHeaderHomeBinding = NavHeaderHomeBinding.bind(view)
         val circleProfile = navHeaderHomeBinding.circleProfile
         val profileName = navHeaderHomeBinding.txtNavProfileName
         val profileNumber = navHeaderHomeBinding.txtNavProfileNum
-        profileName.text = "مهدی العباسیان"
+        circleProfile.circleBackgroundColor = R.mipmap.ic_launcher
+        profileName.text = "مهدی عباسیان"
         profileNumber.text = "09109615748"
         profileName.typeface = fBold
         profileNumber.typeface = fRegular
@@ -266,14 +265,9 @@ class HomeActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-    }
-
     /*For implement setNavigationItemSelectedListener*/
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
-        val id = menuItem.itemId
-        when (id) {
+        when (menuItem.itemId) {
             R.id.navHome -> if (binding.drawerLayout.isDrawerVisible(GravityCompat.END)) {
                 binding.drawerLayout.closeDrawer(GravityCompat.END)
             }

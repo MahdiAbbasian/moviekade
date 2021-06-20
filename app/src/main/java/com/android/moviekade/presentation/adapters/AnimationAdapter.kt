@@ -29,9 +29,9 @@ class AnimationAdapter @Inject constructor(
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallBack)
+    val differ = AsyncListDiffer(this, diffCallBack)
 
-    var data : List<AnimationMovie>
+    private var data : List<AnimationMovie>
         get() = differ.currentList
         set(value) = differ.submitList(value)
 

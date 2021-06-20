@@ -29,9 +29,9 @@ class TopMovieAdapter @Inject constructor(
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallBack)
+    val differ = AsyncListDiffer(this, diffCallBack)
 
-    var data: List<TopMovie>
+    private var data: List<TopMovie>
         get() = differ.currentList
         set(value) = differ.submitList(value)
 

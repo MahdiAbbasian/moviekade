@@ -3,8 +3,9 @@ package com.android.moviekade.business.domain.mapper.response
 import com.android.moviekade.business.data.remote.response.SeriesItemResponse
 import com.android.moviekade.business.domain.entity.Series
 import com.android.moviekade.business.domain.mapper.Mapper
+import javax.inject.Inject
 
-class SeriesResponseMapper:
+class SeriesResponseMapper @Inject constructor():
     Mapper<SeriesItemResponse, Series> {
     override fun mapFrom(value: SeriesItemResponse): Series = with(value) {
         Series().also {

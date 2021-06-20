@@ -30,9 +30,9 @@ class SeriesAdapter @Inject constructor(
         }
     }
 
-    private val differ = AsyncListDiffer(this, diffCallBack)
+    val differ = AsyncListDiffer(this, diffCallBack)
 
-    var data: List<Series>
+    private var data: List<Series>
         get() = differ.currentList
         set(value) = differ.submitList(value)
 
@@ -53,7 +53,6 @@ class SeriesAdapter @Inject constructor(
     class SeriesViewHolder(private val itemBinding: ItemSeriesBinding): RecyclerView.ViewHolder(itemBinding.root),
         View.OnClickListener {
         private var listener: ItemClickListener? = null
-        lateinit var glide: RequestManager
 
         fun bind(glide: RequestManager, seriesResponse: Series) {
             itemBinding.nameMovie.text = seriesResponse.name

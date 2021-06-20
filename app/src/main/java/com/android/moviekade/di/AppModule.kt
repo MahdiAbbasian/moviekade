@@ -30,40 +30,39 @@ object AppModule {
 
     private const val baserUrl = "https://mamtopstream.pw/"
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideMovieHouseDatabase(@ApplicationContext context: Context): MovieHouseDB =
         Room.databaseBuilder(context, MovieHouseDB::class.java, "MovieHouseDB")
-            .fallbackToDestructiveMigration()
             .build()
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideAnimationMovieDao(database: MovieHouseDB): AnimationDAO =
         database.animationDao()
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideNewMovieDao(database: MovieHouseDB): NewMovieDAO =
         database.newMovieDao()
 
-   @Singleton
    @Provides
+   @Singleton
     fun provideSeriesDao(database: MovieHouseDB): SeriesDAO =
         database.seriesDao()
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSliderDao(database: MovieHouseDB): SliderDAO =
         database.sliderDao()
-    
-    @Singleton
+
     @Provides
+    @Singleton
     fun provideTopMovieDao(database: MovieHouseDB): TopMovieDAO = 
         database.topMovieDao()
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideAnimationMovieRepo(
          animationDao: AnimationDAO,
          animationMovieNetwork: Api,
@@ -73,8 +72,8 @@ object AppModule {
         return AnimationMovieRepo(animationDao, animationMovieNetwork, animationMovieCacheMapper, animationMovieResponseMapper)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideNewMovieRepo(
         newMovieDAO: NewMovieDAO,
         newMovieNetwork: Api,
@@ -84,8 +83,8 @@ object AppModule {
         return NewMovieRepo(newMovieDAO, newMovieNetwork, newMovieCacheMapper, newMovieResponseMapper)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSeriesRepo(
         seriesDAO: SeriesDAO,
         seriesNetwork: Api,
@@ -95,8 +94,8 @@ object AppModule {
         return SeriesRepo(seriesDAO, seriesNetwork, seriesCacheMapper, seriesResponseMapper)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSliderRepo(
         sliderDAO: SliderDAO,
         sliderNetwork: Api,
@@ -106,8 +105,8 @@ object AppModule {
         return SliderRepo(sliderDAO, sliderNetwork, sliderCacheMapper, sliderResponseMapper)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideTopMovieRepo(
         topMovieDAO: TopMovieDAO,
         topMovieNetwork: Api,
@@ -117,48 +116,48 @@ object AppModule {
         return TopMovieRepo(topMovieDAO, topMovieNetwork, topMovieCacheMapper, topMovieResponseMapper)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideAnimationMovieUseCase(
         animationMovieRepo: AnimationMovieRepo
     ): AnimationMovieUseCase {
         return AnimationMovieUseCase(animationMovieRepo)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideNewMovieUseCase(
         newMovieRepo: NewMovieRepo
     ): NewMovieUseCase {
         return NewMovieUseCase(newMovieRepo)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSeriesUseCase(
         seriesRepo: SeriesRepo
     ): SeriesUseCase {
         return SeriesUseCase(seriesRepo)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideSliderUseCase(
         sliderRepo: SliderRepo
     ): SliderUseCase {
         return SliderUseCase(sliderRepo)
     }
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideTopMovieUseCase(
         topMovieRepo: TopMovieRepo
     ): TopMovieUseCase {
         return TopMovieUseCase(topMovieRepo)
     }
-    
-    @Singleton
+
     @Provides
+    @Singleton
     fun provideGlideInstance(@ApplicationContext context: Context): RequestManager =
         Glide.with(context).setDefaultRequestOptions(
             RequestOptions()
@@ -166,8 +165,8 @@ object AppModule {
                 .error(R.drawable.ic_popcorn)
         )
 
-    @Singleton
     @Provides
+    @Singleton
     fun provideMovieHouseApi(): Api =
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(GsonBuilder().create()))

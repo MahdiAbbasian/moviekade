@@ -12,10 +12,12 @@ class BaseApplication : Application() {
         lateinit var fBold: Typeface
     }
 
-    private fun fonts(which: Fonts): Typeface = Typeface.createFromAsset(this.assets, which.path)
-
-    fun initFont() {
+    override fun onCreate() {
+        super.onCreate()
         fRegular = fonts(Fonts.REGULAR)
         fBold = fonts(Fonts.BOLD)
     }
+
+    private fun fonts(which: Fonts): Typeface = Typeface.createFromAsset(this.assets, which.path)
+
 }
