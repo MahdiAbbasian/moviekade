@@ -249,7 +249,6 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
         profileNumber.typeface = fRegular
     }
 
-    /*For Exit binding.drawerLayout*/
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerVisible(GravityCompat.START)) {
             binding.drawerLayout.closeDrawer(GravityCompat.START)
@@ -264,8 +263,7 @@ class HomeActivity : AppCompatActivity(),NavigationView.OnNavigationItemSelected
         menuInflater.inflate(R.menu.home_drawer_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
-    /*For implement setNavigationItemSelectedListener*/
+    
     override fun onNavigationItemSelected(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
             R.id.navHome -> if (binding.drawerLayout.isDrawerVisible(GravityCompat.END)) {
